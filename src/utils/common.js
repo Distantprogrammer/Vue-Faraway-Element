@@ -72,7 +72,7 @@ export const tableSetting = (heightDifference, outsideClss = '', bodyWrapper = '
   tableScrollNode.addEventListener('scroll', function(e) {
     bodyWrapperNode.scrollLeft = e.target.scrollLeft
   })
-  arr[1] = tablebBodyNode.clientWidth
+  arr[1] = tablebBodyNode.clientWidth + 26
   return arr
 }
 
@@ -82,10 +82,17 @@ export const tableSetting = (heightDifference, outsideClss = '', bodyWrapper = '
  * @param tableData 表格数据
  * @param title 标题长内容短的，传标题  可不传
  * @param num 列中有标签等加的富余量
+ * @param that this 表格最后一列添加 不是btn一列
  * @returns 列的宽度
- * 注：prop,title有一个必传 有空还是收到加宽度吧，毕竟重绘了
+ * 注：prop,title有一个必传
  */
-export const flexWidth = (prop, tableData, title, num = 20) => {
+export const flexWidth = (prop, tableData, title, that, num = 20) => {
+  // 处理最后一次的设置表格宽度后滚动条不刷新的问题
+  if (that) {
+    that.$nextTick(() => {
+      that.tableSetting()
+    })
+  }
   if (tableData.length === 0) { // 表格没数据不做处理
     return
   }
