@@ -1,6 +1,7 @@
 
 .wrapper {
-  height: 100%;
+  /*50 = navbar  */
+  min-height: calc(100vh - 50px);
   display: flex;
   flex-direction: column;
 }
@@ -15,7 +16,7 @@
 }
 
 .footer {
-  height: 90px;
+  //height: 90px;
 }
 
 .fengexian {
@@ -277,6 +278,9 @@
   height: 100% !important;
   box-shadow: 0 0 0 0px #cccccc !important;
   background-color: #fff;
+  .el-table__fixed-body-wrapper{
+    max-height: calc(100% - 33px) !important;
+  }
   .el-table__fixed-header-wrapper,.el-table__fixed-body-wrapper{
     table{
       tbody,thead{
@@ -328,7 +332,7 @@
 //表格区块
 .div-table-button {
   background-color: #ffffff;
-  padding: 20px 10px 0px 10px;
+  padding: 20px 10px 10px 10px;
   display: flex;
   justify-content: space-between;
   border-radius: 3px;

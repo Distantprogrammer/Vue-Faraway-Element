@@ -17,19 +17,31 @@
 </template>
 
 <script>
+import option from '@/options/table.js'
 export default {
   name: '',
   components: {},
   props: {},
-  data () {
-    return {}
+  data() {
+    return {
+      option: option
+    }
   },
   computed: {},
   watch: {},
-  created () { },
-  mounted () { },
-  methods: {}
+  created() { },
+  mounted() { },
+  methods: {
+    handleAdd() {},
+    handleImport() {},
+    handleExport() {},
+    handleDelete() {},
+    searchChange() {},
+    searchHide() {}
+  }
 }
 </script>
 
-<style lang='less' scoped></style>
+<style lang='scss' scoped>
+@import "./styles/TableBtn.scss";
+</style>
