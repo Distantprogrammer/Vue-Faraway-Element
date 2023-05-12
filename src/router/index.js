@@ -58,15 +58,46 @@ export const constantRoutes = [
   {
     path: '/example',
     component: Layout,
-    redirect: '/example/table',
     name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
+    meta: { title: '组件', icon: 'el-icon-s-help' },
     children: [
       {
         path: 'table',
         name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        component: () => import('@/views/table'),
+        meta: { title: 'Table', icon: 'table' },
+        children: [
+          {
+            path: '/example/table/tableTemplate',
+            name: 'tableTemplate',
+            component: () => import('@/views/table/TableTemplate'),
+            meta: { title: 'tableTemplate', icon: 'table' }
+          },
+          {
+            path: '/example/table/tableList',
+            name: 'tableList',
+            component: () => import('@/views/table/components/TableList'),
+            meta: { title: 'tableList', icon: 'table' }
+          },
+          {
+            path: '/example/table/tableSearch',
+            name: 'tableSearch',
+            component: () => import('@/views/table/components/TableSearch'),
+            meta: { title: 'tableSearch', icon: 'el-icon-search' }
+          },
+          {
+            path: '/example/table/tableBtn',
+            name: 'tableBtn',
+            component: () => import('@/views/table/components/TableBtn'),
+            meta: { title: 'tableBtn', icon: 'el-icon-search' }
+          },
+          {
+            path: '/example/table/tableForm',
+            name: 'tableForm',
+            component: () => import('@/views/table/components/TableForm'),
+            meta: { title: 'tableForm', icon: 'el-icon-search' }
+          }
+        ]
       },
       {
         path: 'tree',

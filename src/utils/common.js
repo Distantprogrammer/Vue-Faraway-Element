@@ -3,6 +3,7 @@
  */
 import { Message } from 'element-ui'
 import { MessageBox } from 'element-ui'
+import Vue from 'vue'
 // import { getToken } from "@/util/auth"
 
 const confirmOptions = { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
