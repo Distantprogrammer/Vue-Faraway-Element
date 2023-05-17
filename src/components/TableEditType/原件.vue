@@ -2,8 +2,8 @@
   <div class="tableEidtType">
     <div class="table-handle" v-if="editType == 'input'">
       <el-input v-bind="$attrs" v-on="$listeners" v-focus class="table-input" @focus="inputFocus(editForm[variableName])"
-        :ref="variableName + index" @blur="tableCellBlur(row, 'blur')" @keyup.enter.native="tableCellBlur(row, 'keyup')"
-        v-if="tableInputreadonly == variableName + index" v-model="editForm[variableName]">
+                :ref="variableName + index" @blur="tableCellBlur(row, 'blur')" @keyup.enter.native="tableCellBlur(row, 'keyup')"
+                v-if="tableInputreadonly == variableName + index" v-model="editForm[variableName]">
       </el-input>
       <div class="table-data" v-else>
         <span>{{ editForm[variableName] }}</span>
@@ -16,7 +16,7 @@
     <div class="table-handle" style="justify-content: center;" v-else-if="editType == 'textarea'">
       <div class="table-textarea">
         <el-dialog v-dialogDrag :modal='false' :before-close="textareaClose" :show-close="false" :destroy-on-close="false"
-          :fullscreen.sync="textareaFullscreen" :visible="textareaDialogShow" class="avue-dialog avue-dialog--top" width="70%">
+                   :fullscreen.sync="textareaFullscreen" :visible="textareaDialogShow" class="avue-dialog avue-dialog--top" width="70%">
           <div slot="title" class="avue-dialog__title">
             <div class="dialog-window">
               <div class="window_title">
@@ -30,8 +30,8 @@
               </div>
             </div>
           </div>
-          <textEditing ref="monaco" style="width: 100%;height: 100%;" :language="language" :textareaValue="textareaValue" 
-          @input="textareaInput" v-if="tableInputreadonly == variableName + index" :index="index" />
+          <textEditing ref="monaco" style="width: 100%;height: 100%;" :language="language" :textareaValue="textareaValue"
+                       @input="textareaInput" v-if="tableInputreadonly == variableName + index" :index="index" />
         </el-dialog>
         <div class="table-data" >
           <el-button size="mini"  type="text" @click="tableCellEdit(variableName + index, row)">编辑</el-button>
@@ -43,33 +43,33 @@
           <span class="el-input__suffix-inner">
             <i slot="suffix" class="el-icon-edit" @click="tableCellEdit(variableName + index, row)"></i></span>
         </span> -->
-          <div class="textarea_maxsize" :style="{'left':260+60*index+'px'}" v-if="textareaMinsizeDetail.id" @click="textareaMinus('maxsize',textareaMinsizeDetail.id)">
-            {{ row.id.slice(row.id.length-5,row.id.length) }}
-          </div>
+        <div class="textarea_maxsize" :style="{'left':260+60*index+'px'}" v-if="textareaMinsizeDetail.id" @click="textareaMinus('maxsize',textareaMinsizeDetail.id)">
+          {{ row.id.slice(row.id.length-5,row.id.length) }}
+        </div>
       </div>
     </div>
     <div class="table-handle" v-else-if="editType == 'select-tag'">
       <div class="table-select is-select-tag">
         <div class="select-value"
-          @click="tableCellEdit(variableName + index, 'click'), inputFocus(editForm[variableName])"
-          v-if="!editForm[variableName]">{{ selectOptionEnum(editForm[variableName]) || placeholder }}
+             @click="tableCellEdit(variableName + index, 'click'), inputFocus(editForm[variableName])"
+             v-if="!editForm[variableName]">{{ selectOptionEnum(editForm[variableName]) || placeholder }}
         </div>
         <div class="select-value"
-          @click="tableCellEdit(variableName + index, 'click'), inputFocus(editForm[variableName])" v-else>
+             @click="tableCellEdit(variableName + index, 'click'), inputFocus(editForm[variableName])" v-else>
           <el-tag :type="tagEnum[editForm[variableName]]" v-if="!filterable" size="small">
             {{ selectOptionEnum(editForm[variableName]) }}
           </el-tag>
           <el-input v-model="selectSearchValue" v-else type="text" @input="filterMethod(variableName + index)"
-            :value="selectOptionEnum(editForm[variableName])" />
+                    :value="selectOptionEnum(editForm[variableName])" />
         </div>
         <el-select v-bind="$attrs" @visible-change="typeVisible()" filterable v-on="$listeners"
-          @change="tableCellBlur(row, 'blur')" :ref="variableName + index" v-model="editForm[variableName]"
-          :placeholder="placeholder">
+                   @change="tableCellBlur(row, 'blur')" :ref="variableName + index" v-model="editForm[variableName]"
+                   :placeholder="placeholder">
           <el-option v-for="item in selectOption" :key="item.value" :label="item.label" :value="item.value">
             <span style="float: left"><el-tag :type="tagEnum[item.value]" size="small">{{ item.label || item.value
-            }}</el-tag></span>
+              }}</el-tag></span>
             <span style="float: right; color: #8492a6; font-size: 13px" v-if="editForm[variableName] == item.value"><i
-                class="el-icon-check"></i></span>
+              class="el-icon-check"></i></span>
           </el-option>
         </el-select>
       </div>
@@ -77,8 +77,8 @@
     <div class="table-handle" v-else-if="editType == 'select'">
       <div class="table-select">
         <el-select v-bind="$attrs" @visible-change="typeVisible()" :filterable="filterable" v-on="$listeners"
-          @change="tableCellBlur(row, 'blur')" :ref="variableName + index" v-model="editForm[variableName]"
-          :placeholder="placeholder">
+                   @change="tableCellBlur(row, 'blur')" :ref="variableName + index" v-model="editForm[variableName]"
+                   :placeholder="placeholder">
           <el-option v-for="item in selectOption" :key="item.value" :label="item.label" :value="item.value">
           </el-option>
         </el-select>
@@ -86,23 +86,23 @@
     </div>
     <div class="table-handle" v-else-if="editType == 'date'">
       <el-date-picker v-bind="$attrs" v-on="$listeners" type="date" @focus="inputFocus(editForm[variableName])"
-        v-model="editForm[variableName]" :clearable="false" class="table-date" :ref="variableName + index"
-        @blur="tableCellBlur(row, 'blur')" :value-format="valueFormat">
+                      v-model="editForm[variableName]" :clearable="false" class="table-date" :ref="variableName + index"
+                      @blur="tableCellBlur(row, 'blur')" :value-format="valueFormat">
       </el-date-picker>
     </div>
     <div class="table-handle" v-else-if="editType == 'datetime'">
       <el-date-picker v-bind="$attrs" v-on="$listeners" type="datetime" @focus="inputFocus(editForm[variableName])"
-        v-model="editForm[variableName]" :clearable="false" class="table-date" :ref="variableName + index"
-        @blur="tableCellBlur(row, 'blur')" :value-format="valueFormat">
+                      v-model="editForm[variableName]" :clearable="false" class="table-date" :ref="variableName + index"
+                      @blur="tableCellBlur(row, 'blur')" :value-format="valueFormat">
       </el-date-picker>
     </div>
-    <div class="table-handle" v-else-if="editType == 'forbid'">
+    <div class="table-handle" v-else-if="editType == 'readonly'">
       {{ row[variableName] }}
     </div>
     <div class="table-handle table-switch" v-else-if="editType == 'switch'">
       <el-switch width="40" :active-value="1" :inactive-value="0"
-        v-model="editForm[variableName]"  @change="tableCellBlur(row, 'blur')">
-      </el-switch>   
+                 v-model="editForm[variableName]"  @change="tableCellBlur(row, 'blur')">
+      </el-switch>
     </div>
     <div class="table-handle" v-else>
       {{ row[variableName] }}
@@ -196,13 +196,13 @@ export default {
     }
   },
   created () {
-    
+
     if (this.editType == 'textarea')this.textareaValue = this.row[this.variableName]
   },
   updated () {
-   
+
     if (this.editType == 'textarea')this.textareaValue = this.row[this.variableName]
-   },
+  },
   computed: {
     editForm () {
       return this.row
@@ -283,7 +283,7 @@ export default {
         this.tableInputreadonly = event;
         this.textareaValue = this.textareaMinsizeDetail.value
         this.textareaMinsizeDetail = {}
-     }
+      }
     },
     // 全屏
     textareaScreen () {
@@ -319,7 +319,7 @@ export default {
 <style lang='scss' scoped>
 // 开关样式
 .table-switch {
-  ::v-deep .el-switch__core {
+  /deep/ .el-switch__core {
     width: 32px !important;
     height: 14px;
     &::after {
@@ -327,15 +327,15 @@ export default {
       height: 10px;
     }
   }
-  ::v-deep .is-checked {   
-   .el-switch__core {
-    &::after {
-      margin-left: -12px;
+  /deep/ .is-checked {
+    .el-switch__core {
+      &::after {
+        margin-left: -12px;
+      }
     }
   }
 }
-}
-// 
+//
 .tableEidtType {
   width: 100%;
   height: 100%;
@@ -348,7 +348,7 @@ export default {
   height: 100%;
 
   // padding: 0 10px;
-  ::v-deep.el-input {
+  /deep/.el-input {
     font-size: 12px;
   }
 
@@ -360,7 +360,7 @@ export default {
     height: 100%;
   }
 
-  ::v-deep.el-input__suffix {
+  /deep/.el-input__suffix {
     display: none;
   }
 
@@ -374,7 +374,7 @@ export default {
   }
 }
 
-::v-deep.el-input__inner {
+/deep/.el-input__inner {
   border: none;
   outline: none;
   background: transparent;
@@ -412,7 +412,7 @@ export default {
 }
 
 .table-date {
-  ::v-deep.el-input__icon {
+  /deep/.el-input__icon {
     display: none;
     height: 100%;
     padding: 0;
@@ -437,14 +437,14 @@ export default {
       width: 90%;
     }
 
-    ::v-deep.el-tag {
+    /deep/.el-tag {
       max-width: 80%;
       overflow: hidden;
       text-overflow: ellipsis;
     }
   }
 
-  ::v-deep.el-select {
+  /deep/.el-select {
     .el-input__icon {
       line-height: 30px;
     }
@@ -457,7 +457,7 @@ export default {
 }
 
 .is-select-tag {
-  ::v-deep.el-select {
+  /deep/.el-select {
     .el-input {
       visibility: hidden;
     }
@@ -465,7 +465,7 @@ export default {
 }
 
 .table-textarea {
-  ::v-deep.el-dialog__header {
+  /deep/.el-dialog__header {
     padding: 0;
     margin: 0;
     padding: 0 20px;
@@ -474,17 +474,17 @@ export default {
     box-shadow: 2px 2px 5px#333333;
   }
 
-  ::v-deep.el-dialog__headerbtn {
+  /deep/.el-dialog__headerbtn {
     display: none;
   }
 
-  ::v-deep.el-dialog__body {
+  /deep/.el-dialog__body {
     padding: 0;
     margin: 0;
     overflow: hidden;
   }
 
-  ::v-deep.el-dialog.is-fullscreen {
+  /deep/.el-dialog.is-fullscreen {
     left: 50% !important;
     right: 50% !important;
     top: 0 !important;
@@ -498,18 +498,18 @@ export default {
     width: 100%;
     height: 100%;
   }
-.textarea_maxsize{
-  color: #fff;
-  width: 50px;
-  height: 20px;
-  line-height: 20px;
-  text-align: center;
-  background-color: #000;
-  position: fixed;
-  z-index: 100;
-  bottom: 10px;
-  left: 260px;
-}
+  .textarea_maxsize{
+    color: #fff;
+    width: 50px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    background-color: #000;
+    position: fixed;
+    z-index: 100;
+    bottom: 10px;
+    left: 260px;
+  }
   .dialog-window {
     width: 100%;
     height: 100%;
