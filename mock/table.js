@@ -3,11 +3,16 @@ const Mock = require('mockjs')
 const data = Mock.mock({
   'items|10': [{
     id: '@id',
-    title: '@sentence(10, 20)',
-    'status|1': ['published', 'draft', 'deleted'],
-    author: 'name',
-    display_time: '@datetime',
-    pageviews: '@integer(300, 5000)'
+    input: '@sentence(10, 20)',
+    select: "@sentence(10, 20)",
+    selectTag: "@sentence(10, 20)",
+    textarea: "@sentence(10, 20)",
+    date: "@date('yyyy-MM-dd')",
+    datetime: "@datetime('yyyy-MM-dd HH:mm:ss')",
+    switch: "@boolean()",
+    richTextEditor: "@cparagraph(1, 3)",
+    imageUpload: "@image('200x100', '#4A7BF7', 'Hello')",
+    readonly: "@sentence(10, 20)",
   }]
 })
 

@@ -74,64 +74,83 @@
 
       <!-- 表格START -->
       <el-row>
-          <div class="div-table-body">
-            <el-table
-              ref="table"
-              v-loading="tableLoading"
-              :max-height="tableHeight"
-              :size="option.size"
-              :data="tableData"
-              style="width: 100%"
-              :border="option.border"
-              element-loading-text="Loading"
-              fit
-              highlight-current-row
-              @selection-change="selectionChange"
-            >
-              <el-table-column v-if="option.selection" type="selection" fixed="left" width="55" align="center" />
-              <!-- <el-table-column v-if="option.expand" type="expand" align="center" /> -->
-              <!-- <el-table-column v-if="option.index" fixed="left" label="#" type="index" width="50" align="center" /> -->
-              <el-table-column align="center" label="ID" width="95">
-                <template slot-scope="scope">
-                  {{ scope.$index }}
-                </template>
-              </el-table-column>
-              <el-table-column label="Title" prop="Title">
-                <template scope="{row,$index}">
-                  <tableEditType
-                    edit-type="input"
-                    :index="$index"
-                    :row="row"
-                    variable-name="Title"
-                    @tableCellBlur="tableCellBlur"
-                  />
-                </template>
-              </el-table-column>
-              <el-table-column label="Author" width="110" align="center" />
-              <el-table-column label="Pageviews" width="110" align="center" />
-              <el-table-column class-name="status-col" label="Status" width="110" align="center" />
-              <el-table-column align="center" prop="created_at" label="Display_time" width="200" />
-              <el-table-column align="center" prop="created_at" label="Display_time" width="200" />
-              <el-table-column align="center" prop="created_at" label="Display_time" width="200" />
-              <el-table-column align="center" prop="created_at" label="Display_time" width="200" />
-              <el-table-column align="center" prop="created_at" label="Display_time" width="200" />
-              <el-table-column align="center" prop="created_at" label="Display_time" width="200" />
-              <el-table-column align="center" prop="created_at" label="Display_time" width="200" />
-              <!-- 表格行操作栏 -->
-              <el-table-column prop="menu" fixed="right" label="操作" :width="130" align="center">
-                <template slot-scope="{row}">
-                  <el-button :size="option.size" type="text">查看</el-button>
-                  <el-button :size="option.size" type="text">编辑</el-button>
-                  <el-button :size="option.size" type="text" style="color:red">删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
+        <div class="div-table-body">
+          <el-table ref="table" v-loading="tableLoading" :max-height="tableHeight" :size="option.size" :data="tableData"
+            style="width: 100%" :border="option.border" element-loading-text="Loading" fit highlight-current-row
+            @selection-change="selectionChange">
+            <el-table-column v-if="option.selection" type="selection" fixed="left" width="55" align="center" />
+            <!-- <el-table-column v-if="option.expand" type="expand" align="center" /> -->
+            <!-- <el-table-column v-if="option.index" fixed="left" label="#" type="index" width="50" align="center" /> -->
+            <el-table-column align="center" label="ID" width="95">
+              <template slot-scope="scope">
+                {{ scope.$index }}
+              </template>
+            </el-table-column>
+            <el-table-column label="input" prop="Title">
+              <template slot-scope="{row,$index}">
+                <tableEditType edit-type="input" :index="$index" :row="row" variable-name="input"  @tableCellBlur="tableCellBlur" />
+              </template>
+            </el-table-column>
+            <el-table-column label="select" width="110" align="center">
+              <template slot-scope="{row,$index}">
+                <tableEditType edit-type="select" :selectOption="selectOption" :index="$index" :row="row" variable-name="select"  @tableCellBlur="tableCellBlur" />
+              </template>
+            </el-table-column>
+            <el-table-column label="selectTag" width="110" align="center">
+              <template slot-scope="{row,$index}">
+                <tableEditType edit-type="select-tag" :selectOption="selectOption" :index="$index" :row="row" variable-name="selectTag"  @tableCellBlur="tableCellBlur" />
+              </template>
+            </el-table-column>
+            <el-table-column class-name="textarea" label="textarea" width="110" align="center">
+              <template slot-scope="{row,$index}">
+                <tableEditType edit-type="textarea" :index="$index" :row="row" variable-name="textarea"  @tableCellBlur="tableCellBlur" />
+              </template>
+            </el-table-column>
+            <el-table-column align="center" prop="date" label="date" width="200">
+              <template slot-scope="{row,$index}">
+                <tableEditType edit-type="date" :index="$index" :row="row" variable-name="date"  @tableCellBlur="tableCellBlur" />
+              </template>
+            </el-table-column>
+            <el-table-column align="center" prop="datetime" label="datetime" width="200">
+              <template slot-scope="{row,$index}">
+                <tableEditType edit-type="datetime" :index="$index" :row="row" variable-name="datetime"  @tableCellBlur="tableCellBlur" />
+              </template>
+            </el-table-column>
+            <el-table-column align="center" prop="image.png" label="switch" width="200">
+              <template slot-scope="{row,$index}">
+                <tableEditType edit-type="switch" :index="$index" :row="row" variable-name="switch"  @tableCellBlur="tableCellBlur" />
+              </template>
+            </el-table-column>
+            <el-table-column align="center" prop="richTextEditor" label="richTextEditor" width="200">
+              <template slot-scope="{row,$index}">
+                <tableEditType edit-type="richTextEditor" :index="$index" :row="row" variable-name="richTextEditor"  @tableCellBlur="tableCellBlur" />
+              </template>
+            </el-table-column>
+            <el-table-column align="center" prop="imageUpload" label="imageUpload" width="200">
+              <template slot-scope="{row,$index}">
+                <tableEditType edit-type="imageUpload" :index="$index" :row="row" variable-name="imageUpload"  @tableCellBlur="tableCellBlur" />
+              </template>
+            </el-table-column>
+            <el-table-column align="center" prop="readonly" label="readonly" width="200">
+              <template slot-scope="{row,$index}">
+                <tableEditType edit-type="readonly" :index="$index" :row="row" variable-name="readonly"  @tableCellBlur="tableCellBlur" />
+              </template>
+            </el-table-column>
+            <!-- 表格行操作栏 -->
+            <el-table-column prop="menu" fixed="right" label="操作" :width="130" align="center">
+              <template>
+                <el-button :size="option.size" type="text">查看</el-button>
+                <el-button :size="option.size" type="text">编辑</el-button>
+                <el-button :size="option.size" type="text" style="color:red">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
       </el-row>
       <!-- 表格滚动条START -->
       <el-row class="div-scroll-bg">
         <div ref="div-table-scroll" class="div-table-scroll">
-          <div ref="table-scroll-box" :style="{'width':tableScrollBoxWidth+'px'}" class="table-scroll-box" />
+          <div ref="table-scroll-box" :style="{ 'width': tableScrollBoxWidth + 'px' }" class="table-scroll-box" />
         </div>
       </el-row>
       <!-- 表格滚动条END -->
@@ -142,23 +161,16 @@
     <div class="footer">
       <el-row>
         <div class="div-pagination">
-          <el-pagination
-            align="right"
-            background
-            :current-page="page.currentPage"
-            :page-sizes="[50, 100, 500, 1000]"
-            :page-size="page.pageSize"
-            layout="prev, pager, next,sizes"
-            :total="page.total"
-            @size-change="sizeChange"
-            @current-change="currentChange"
-          />
+          <el-pagination align="right" background :current-page="page.currentPage" :page-sizes="[50, 100, 500, 1000]"
+            :page-size="page.pageSize" layout="prev, pager, next,sizes" :total="page.total" @size-change="sizeChange"
+            @current-change="currentChange" />
         </div>
       </el-row>
       <!-- 分页END -->
     </div>
     <!-- 表单START -->
-    <el-dialog :title="title" :visible.sync="formDialogShow" width="800px" height="200px" :before-close="beforeClose" append-to-body>
+    <el-dialog :title="title" :visible.sync="formDialogShow" width="800px" height="200px" :before-close="beforeClose"
+      append-to-body>
       <div style="max-height: 600px; overflow-y: scroll">
         <el-form ref="form" :disabled="formDisabled" :size="option.size" :model="dialogForm" label-width="140px">
           <!-- 表单字段 -->
@@ -199,13 +211,13 @@
 <script>
 import { getList } from '@/api/table'
 import option from '@/options/table.js'
-import { handleExport, handleTemplate, tableSetting, confirmShow } from '@/utils/common.js'
+import { tableSetting } from '@/utils/common.js'
 import TableEditType from '@/components/TableEditType'
 export default {
   components: {
     TableEditType
   },
-  data() {
+  data () {
     return {
       queryForm: {
         customerName: '',
@@ -214,8 +226,18 @@ export default {
         contactPhone: '',
         searchKeywords: '',
         promotionalKeywords: '',
-        createUser: ''
+        createUser: '',
       },
+      selectOption:[
+          {
+            value: '1',
+            label:'是'
+          },
+          {
+            value: '2',
+            label:'否'
+          },
+        ],
       search: true,
       tableLoading: true,
       // 分页信息
@@ -246,7 +268,7 @@ export default {
     }
   },
   computed: {
-    ids() {
+    ids () {
       const ids = []
       this.selectionList.forEach(ele => {
         ids.push(ele.id)
@@ -254,13 +276,13 @@ export default {
       return ids.join(',')
     }
   },
-  created() {
+  created () {
     this.getTableData()
   },
-  updated() {
+  updated () {
     this.tableSetting()
   },
-  mounted() {
+  mounted () {
     this.tableSetting()
     window.addEventListener('resize', () => {
       if (this.debounceTime !== null) {
@@ -272,27 +294,27 @@ export default {
     })
   },
   methods: {
-    searchChange() {},
-    searchReset() {},
-    handleAdd() {},
-    handleImport() {},
-    handleExport() {},
-    handleDelete() {},
-    searchHide() {},
-    selectionChange(list) {
+    searchChange () { },
+    searchReset () { },
+    handleAdd () { },
+    handleImport () { },
+    handleExport () { },
+    handleDelete () { },
+    searchHide () { },
+    selectionChange (list) {
       this.selectionList = list
     },
-    selectionClear() {
+    selectionClear () {
       this.selectionList = []
       this.$refs.table.clearSelection()
     },
-    currentChange(currentPage) {
+    currentChange (currentPage) {
       this.page.currentPage = currentPage
     },
-    sizeChange(pageSize) {
+    sizeChange (pageSize) {
       this.page.pageSize = pageSize
     },
-    tableCellBlur(editForm, isEidt = true, variableName) {
+    tableCellBlur (editForm, isEidt = true, variableName) {
       this.form = {}
       this.form.id = editForm.id
       this.form[variableName] = editForm[variableName]
@@ -301,13 +323,13 @@ export default {
       }
     },
     // 表格的设置
-    tableSetting() {
+    tableSetting () {
       const arr = tableSetting(this.heightDifference)
       this.tableHeight = arr[0]
       this.tableScrollBoxWidth = arr[1]
       this.$refs.table.doLayout()
     },
-    getTableData() {
+    getTableData () {
       this.tableLoading = true
       getList().then(res => {
         this.tableData = res.data.items
@@ -315,12 +337,12 @@ export default {
         this.selectionClear()
       })
     },
-    beforeClose(done) {
+    beforeClose (done) {
       done()
       this.form = {}
       this.formDialogShow = false
     },
-    handleSubmit() {
+    handleSubmit () {
       this.formDialogShow = false
     }
   }

@@ -1,21 +1,35 @@
 <template>
   <div class="tableEidtType">
-    <div class="table-handle" v-if="editType == 'input'">
-      <el-input  v-focus class="table-input" @focus="inputFocus(editValue)"  @blur="tableCellBlur()" @keyup.enter.native="tableCellBlur('click')"
-                 v-if="tableEidtShow" v-model="editValue">
-      </el-input>
-      <div class="table-data" v-else>
+    <div v-if="editType == 'input'" class="table-handle">
+      <el-input
+        v-if="tableEidtShow"
+        v-model="editValue"
+        v-focus
+        class="table-input"
+        @focus="inputFocus(editValue)"
+        @blur="tableCellBlur()"
+        @keyup.enter.native="tableCellBlur('click')"
+      />
+      <div v-else class="table-data">
         <span>{{ editValue }}</span>
       </div>
-      <span class="el-input__suffix" v-if="!tableEidtShow">
+      <span v-if="!tableEidtShow" class="el-input__suffix">
         <span class="el-input__suffix-inner">
-          <i slot="suffix" class="el-icon-edit" @click="tableCellEdit()"></i></span>
+          <i slot="suffix" class="el-icon-edit" @click="tableCellEdit()" /></span>
       </span>
     </div>
-    <div class="table-handle" v-else-if="editType == 'textarea'" style="justify-content: center;">
+    <div v-else-if="editType == 'textarea'" class="table-handle" style="justify-content: center;">
       <div class="table-textarea">
-        <el-dialog v-dialogDrag :modal='false' :before-close="textareaClose" :show-close="false" :destroy-on-close="false"
-                   :fullscreen.sync="textareaFullscreen" :visible="tableEidtShow" class="avue-dialog avue-dialog--top" width="70%">
+        <el-dialog
+          :modal="false"
+          :before-close="textareaClose"
+          :show-close="false"
+          :destroy-on-close="false"
+          :fullscreen.sync="textareaFullscreen"
+          :visible="tableEidtShow"
+          class="avue-dialog avue-dialog--top"
+          width="70%"
+        >
           <div slot="title" class="avue-dialog__title">
             <div class="dialog-window">
               <div class="window_title">
@@ -23,82 +37,155 @@
                 <span class="window_title_text window_title_button" @click="save">保存</span>
               </div>
               <div class="window_btn">
-                <button class="icon_minus" @click="textareaMinus('minsize')"><i class="el-icon-minus"></i></button>
-                <button class="icon_screen" @click="textareaScreen"><i :class="[textareaFullscreen? 'el-icon-copy-document':'el-icon-full-screen']"></i></button>
-                <button class="icon-close" @click="textareaClose"><i class="el-icon-close"></i></button>
+                <button class="icon_minus" @click="textareaMinus('minsize')"><i class="el-icon-minus" /></button>
+                <button class="icon_screen" @click="textareaScreen"><i :class="[textareaFullscreen? 'el-icon-copy-document':'el-icon-full-screen']" /></button>
+                <button class="icon-close" @click="textareaClose"><i class="el-icon-close" /></button>
               </div>
             </div>
           </div>
-          <MonacoEditor ref="monaco" style="width: 100%;height: 100%;" :language="language" :textareaValue="textareaValue"
-                       @input="textareaInput" v-if="tableEidtShow" :index="index" />
+          <MonacoEditor
+            v-if="tableEidtShow"
+            ref="monaco"
+            style="width: 100%;height: 100%;"
+            :language="language"
+            :textarea-value="textareaValue"
+            :index="index"
+            @input="textareaInput"
+          />
         </el-dialog>
-        <div class="table-data" >
-          <el-button size="mini"  type="text" @click="tableCellEdit()">编辑</el-button>
+        <div class="table-data">
+          <el-button size="mini" type="text" @click="tableCellEdit()">编辑</el-button>
         </div>
-        <div class="textarea_maxsize" :style="{'left':260+60*index+'px'}" v-if="textareaMinsizeDetail.id" @click="textareaMinus('maxsize',textareaMinsizeDetail.id)">
+        <div v-if="textareaMinsizeDetail.id" class="textarea_maxsize" :style="{'left':260+60*index+'px'}" @click="textareaMinus('maxsize',textareaMinsizeDetail.id)">
           {{ row.id.slice(row.id.length-5,row.id.length) }}
         </div>
       </div>
     </div>
-    <div class="table-handle" v-else-if="editType == 'select-tag'">
+    <div v-else-if="editType == 'select-tag'" class="table-handle">
       <div class="table-select is-select-tag">
-        <div class="select-value"
-             @click="tableCellEdit(variableName + index, 'click'), inputFocus(editValue)"
-             v-if="!editValue">{{ selectOptionEnum(editValue) || placeholder }}
+        <div v-if="!editValue" class="select-value" @click="tableCellEdit('select-tag'), inputFocus(editValue)">
+          <div class="select-placeholder">
+            {{ selectOptionEnum(editForm[variableName]) || placeholder }}
+            <span class="el-input__suffix">
+              <span class="el-input__suffix-inner">
+                <i :class="[ filterableInputShow ?'el-icon-arrow-up':'el-icon-arrow-down']" />
+              </span>
+            </span>
+          </div>
+          <div class="select-search">
+            <el-input
+              v-if="filterable && filterableInputShow"
+              v-model="selectSearchValue"
+              v-focus
+              type="text"
+              @blur="filterableInputBlur"
+              @focus="filterMethod()"
+              @input="filterMethod()"
+            />
+          </div>
         </div>
-        <div class="select-value"
-             @click="tableCellEdit(variableName + index, 'click'), inputFocus(editValue)" v-else>
-          <el-tag :type="tagEnum[editValue]" v-if="!filterable" size="small">
-            {{ selectOptionEnum(editValue) }}
-          </el-tag>
-          <el-input v-model="selectSearchValue" v-else type="text" @input="filterMethod(variableName + index)"
-                    :value="selectOptionEnum(editValue)" />
+        <div v-else class="select-value" @click="tableCellEdit('select-tag'), inputFocus(editValue)">
+          <el-tag :type="tagEnum[editValue]" size="small">{{ selectOptionEnum(editValue) }}</el-tag>
+          <div class="select-search">
+            <el-input
+              v-if="filterable && filterableInputShow"
+              v-model="selectSearchValue"
+              v-focus
+              type="text"
+              @blur="filterableInputBlur"
+              @focus="filterMethod()"
+              @input="filterMethod()"
+            />
+          </div>
         </div>
-        <el-select v-bind="$attrs" @visible-change="typeVisible()" filterable v-on="$listeners"
-                   @change="tableCellBlur()" :ref="variableName + index" v-model="editValue"
-                   :placeholder="placeholder">
-          <el-option v-for="item in selectOption" :key="item.value" :label="item.label" :value="item.value">
-            <span style="float: left"><el-tag :type="tagEnum[item.value]" size="small">{{ item.label || item.value
-              }}</el-tag></span>
-            <span style="float: right; color: #8492a6; font-size: 13px" v-if="editValue == item.value"><i
-              class="el-icon-check"></i></span>
+        <el-select
+          :ref="variableName + index"
+          v-model="editValue"
+          :placeholder="placeholder"
+          @visible-change="typeVisible()"
+          @change="tableCellBlur()"
+        >
+          <el-option v-for="item in selectOption" :key="item.value || item.dictKey" :label="item.label || item.dictValue" :value="item.value || item.dictKey">
+            <span style="float: left">
+              <el-tag :type="tagEnum[item.value || item.dictKey]" size="small">{{ item.label|| item.dictValue || item.value || item.dictKey }}</el-tag>
+            </span>
+            <span v-if="editValue == item.value" style="float: right; color: #8492a6; font-size: 13px">
+              <i class="el-icon-check" />
+            </span>
           </el-option>
         </el-select>
       </div>
     </div>
-    <div class="table-handle" v-else-if="editType == 'select'">
+    <div v-else-if="editType == 'select'" class="table-handle">
       <div class="table-select">
-        <el-select v-bind="$attrs" @visible-change="typeVisible()" :filterable="filterable" v-on="$listeners"
-                   @change="tableCellBlur()" :ref="variableName + index" v-model="editValue"
-                   :placeholder="placeholder">
-          <el-option v-for="item in selectOption" :key="item.value" :label="item.label" :value="item.value">
-          </el-option>
+        <el-select
+          v-model="editValue"
+          :filterable="filterable"
+          :placeholder="placeholder"
+          @visible-change="typeVisible($event)"
+          @change="tableCellBlur()"
+        >
+          <el-option v-for="item in selectOption" :key="item.value || item.dictKey" :label="item.label || item.dictValue" :value="item.value || item.dictKey" />
         </el-select>
       </div>
     </div>
-    <div class="table-handle" v-else-if="editType == 'date'">
-      <el-date-picker type="date" @focus="inputFocus(editValue)"
-                      v-model="editValue" :clearable="false" class="table-date"
-                      @blur="tableCellBlur()" :value-format="valueFormat">
-      </el-date-picker>
+    <div v-else-if="editType == 'date'" class="table-handle">
+      <el-date-picker
+        v-model="editValue"
+        type="date"
+        :clearable="false"
+        class="table-date"
+        :value-format="valueFormat"
+        @focus="inputFocus(editValue)"
+        @blur="tableCellBlur()"
+      />
     </div>
-    <div class="table-handle" v-else-if="editType == 'datetime'">
-      <el-date-picker  type="datetime" @focus="inputFocus(editValue)"
-                       v-model="editValue" :clearable="false" class="table-date"
-                       @blur="tableCellBlur()" :value-format="valueFormat">
-      </el-date-picker>
+    <div v-else-if="editType == 'datetime'" class="table-handle">
+      <el-date-picker
+        v-model="editValue"
+        type="datetime"
+        :clearable="false"
+        class="table-date"
+        value-format="yyyy-MM-dd HH:MM:ss"
+        @focus="inputFocus(editValue)"
+        @blur="tableCellBlur()"
+      />
     </div>
-    <div class="table-handle" v-else-if="editType == 'readonly'">
+    <div v-else-if="editType == 'readonly'" class="table-handle">
       {{ row[variableName] }}
     </div>
-    <div class="table-handle" v-else-if="editType == 'switch'">
+    <div v-else-if="editType == 'switch'" class="table-handle">
       <div class="table-switch">
-        <el-switch width="40" :active-value="1" :inactive-value="0"
-                   v-model="editValue"  @change="tableCellBlur('switch')">
-        </el-switch>
+        <el-switch
+          v-model="editValue"
+          :width="40"
+          :active-value="true"
+          :inactive-value="false"
+          @change="tableCellBlur('switch')"
+        />
       </div>
     </div>
-    <div class="table-handle" v-else>
+    <div v-else-if="editType == 'richTextEditor'" class="table-handle">
+      <div class="table-richTextEditor">
+        <el-button type="text" @click="tableCellEdit()">编辑</el-button>
+        <richTextEditor v-if="tableEidtShow" :title="this.$attrs.title" :main-dialog-visible.sync="tableEidtShow" :edit-value.sync="editValue" />
+      </div>
+    </div>
+    <div v-else-if="editType == 'imageUpload'" class="table-handle">
+      <div class="table-imageUpload">
+        <div class="imgrow">
+          <div v-if="editValue != null && editValue != ''" class="imgrowright">
+            <el-image class="imgrowrightimg" :src="editValue" :preview-src-list="[editValue]" />
+          </div>
+          <div v-else class="imgrowrightReplace" />
+          <div class="imgrowleft">
+            <el-button plain icon="el-icon-upload2" type="text" size="medium" @click="tableCellEdit(row)" />
+          </div>
+        </div>
+        <imageUpload v-if="tableEidtShow" :title="this.$attrs.title" :imgdialog-visible.sync="tableEidtShow" :edit-value.sync="editValue" />
+      </div>
+    </div>
+    <div v-else class="table-handle">
       {{ row[variableName] }}
     </div>
   </div>
@@ -108,12 +195,26 @@
 /**
  * 添加组件时 tableCellBlur()是必须的，自己设置触发时机
  * 发现改值但未调用接口 @focus="inputFocus(editValue)" 这里会传一个编辑前的值用来判断做没做出修改
- * 使用select-tag组件时，只支持普通用法，filterable模式有bug
+ * 使用select-tag组件时，只支持普通用法，filterable模式之前有bug，现在可能有
  *
  */
 import MonacoEditor from './MonacoEditor'
+import richTextEditor from './richTextEditor.vue'
+import imageUpload from './imageUpload.vue'
 export default {
   name: '',
+  components: {
+    MonacoEditor,
+    richTextEditor,
+    imageUpload
+  },
+  directives: {
+    focus: {
+      inserted: function(el) {
+        el.querySelector('input').focus()
+      }
+    }
+  },
   /**
    * @param {Object} row 行数据
    * @param {String} editType forbid不可编辑 编辑类型
@@ -158,7 +259,7 @@ export default {
     },
     placeholder: {
       type: String,
-      default: ''
+      default: '请选择'
     },
     language: {
       type: String,
@@ -181,139 +282,131 @@ export default {
       }
     }
   },
-  components: {
-    MonacoEditor
-  },
-  data () {
+  data() {
     return {
       selectSearchValue: '', // select-tag 搜索值
       textareaFullscreen: false, // textarea弹窗全屏
       textareaValue: '', // textarea弹窗内容
       textareaMinsizeDetail: {}, // textarea弹窗最小化时的内容
       tableEidtShow: false, // 表格输入框显示状态
-      preEditValue:"" // 编辑前的值 用来判断是否做出过编辑操作 不做任何操作
-      // // tag标签的枚举
-      // tagEnum: ,
+      preEditValue: '', // 编辑前的值 用来判断是否做出过编辑操作 不做任何操作
+      filterableInputShow: false, // 过滤功能输入框显示状态 用于检查过滤功能输入框是否显示/隐藏
+      mainDialogVisible: false // 富文本显示
     }
   },
-  created () {
-    if (this.editType == 'textarea')this.textareaValue = this.row[this.variableName]
-  },
-  updated () {
-    if (this.editType == 'textarea')this.textareaValue = this.row[this.variableName]
-  },
   computed: {
-    editForm () {
+    editForm() {
       return this.row
     },
-    textareaDialogShow () {
+    textareaDialogShow() {
       return this.tableEidtShow
     },
-    editValue:{
-      get(){
+    editValue: {
+      get() {
         return this.editForm[this.variableName]
       },
-      set(val){
+      set(val) {
         this.editForm[this.variableName] = val
       }
     }
+
   },
   watch: {
   },
-  mounted () { },
+  created() {
+    if (this.editType === 'textarea') this.textareaValue = this.row[this.variableName]
+  },
+  updated() {
+    if (this.editType === 'textarea') this.textareaValue = this.row[this.variableName]
+  },
+  mounted() {},
   methods: {
     /**
-     * @param { String } event ref值
-     * @param { String } eType 事件类型
+     * @param { String } eType 组件件类型
      */
-    tableCellEdit (event, eType) {
+    tableCellEdit(eType) {
       this.tableEidtShow = true
-      // 下拉框
-      if (eType == 'click') {
-        this.selectSearchValue = this.editForm[this.variableName]
-        // 操作select源码
-        this.$refs[event].visible = true
+      if (eType === 'select-tag') {
+        this.filterableInputShow = 	true
+        // 操作select源码 关键
+        this.$refs[this.variableName + this.index].visible = true
       }
+    },
+    // 下拉框搜索失去焦点
+    filterableInputBlur() {
+      this.filterableInputShow = 	false
+      this.selectSearchValue = ''
     },
     // 下拉框搜索
-    filterMethod (event) {
-      this.$refs[event].handleQueryChange(this.selectSearchValue)
+    filterMethod() {
+      this.$refs[this.variableName + this.index].handleQueryChange(this.selectSearchValue)
     },
-    inputFocus (value) {
-      console.log(value);
+    inputFocus(value) {
       this.preEditValue = value
     },
-    tableCellBlur (event) {
-      if (event=='click') {
+    tableCellBlur(event) {
+      if (event === 'click') {
+        this.tableEidtShow = false
         return
       }
-      if (event == 'switch') {
+      if (event === 'switch') {
         this.$emit('tableCellBlur', this.editForm, true, this.variableName, this.index)
         return
       }
       this.tableEidtShow = false
-      if (this.editForm[this.variableName] == this.preEditValue) {
-        console.log(111);
+      if (this.editForm[this.variableName] === this.preEditValue) {
         this.$emit('tableCellBlur', this.editForm, false, this.variableName, this.index)
       } else {
-        console.log(2222);
         this.$emit('tableCellBlur', this.editForm, true, this.variableName, this.index)
       }
     },
     // 点击保存文本
-    save(){
+    save() {
       this.$refs.monaco.save()
     },
     // 下拉框打开前事件
-    typeVisible () {
-      this.$emit('typeVisible')
+    typeVisible(e) {
+      if (e) this.$emit('typeVisible')
     },
-    selectOptionEnum (selectedValue) {
-      const selectedOption = this.selectOption.find((option) => option.value == selectedValue);
-      const selectedLabel = selectedOption ? selectedOption.label : selectedValue;
-      return selectedLabel;
+    selectOptionEnum(selectedValue) {
+      const selectedOption = this.selectOption.find((option) => option.value || option.dictKey === selectedValue)
+      const selectedLabel = selectedOption ? selectedOption.label || selectedOption.dictValue : selectedValue
+      return selectedLabel
     },
     // 最小化与取消最小化
-    textareaMinus (type) {
-      if (type == 'minsize') {
+    textareaMinus(type) {
+      if (type === 'minsize') {
         this.tableEidtShow = false
-        this.textareaMinsizeDetail={
+        this.textareaMinsizeDetail = {
           id: this.variableName + this.index,
           index: this.index,
           value: this.textareaValue,
           variableName: this.variableName
         }
-      }else {
+      } else {
         this.tableEidtShow = true
         this.textareaValue = this.textareaMinsizeDetail.value
         this.textareaMinsizeDetail = {}
       }
     },
     // 全屏
-    textareaScreen () {
+    textareaScreen() {
       this.textareaFullscreen = !this.textareaFullscreen
     },
     // 关闭
-    textareaClose () {
+    textareaClose() {
       this.tableEidtShow = false
       this.textareaValue = ''
     },
     // 文本域保存或关闭
-    textareaInput(value,type){
-      if (type=='save') {
+    textareaInput(value, type) {
+      if (type === 'save') {
         this.tableEidtShow = false
         this.editForm[this.variableName] = value
         this.$emit('tableCellBlur', this.editForm, true, this.variableName, this.index)
-      }else{
+      } else {
         this.textareaValue = value
         this.textareaMinsizeDetail.value = value
-      }
-    },
-  },
-  directives: {
-    focus: {
-      inserted: function (el) {
-        el.querySelector('input').focus()
       }
     }
   }
@@ -332,12 +425,12 @@ export default {
     }
   }
   /deep/ .is-checked {
-    .el-switch__core {
-      &::after {
-        margin-left: -12px;
-      }
+   .el-switch__core {
+    &::after {
+      margin-left: -12px;
     }
   }
+}
 }
 //
 .tableEidtType {
@@ -453,14 +546,30 @@ export default {
       line-height: 30px;
     }
 
-
-
   }
-
 
 }
 
 .is-select-tag {
+  .select-placeholder{
+    width: 100%;
+    color: #bbc3cd;
+    font-size: 12px;
+    .el-input__suffix{
+      right: 33px;
+      .el-input__suffix-inner{
+        font-size: 14px;
+      }
+    }
+  }
+  .select-search{
+    width: 100%;
+    position: absolute;
+    // background: rgba(0,0,0,0.1);
+    background: #fff;
+    right: 10px;
+    padding: 0 10px;
+}
   /deep/.el-select {
     .el-input {
       visibility: hidden;
@@ -502,18 +611,18 @@ export default {
     width: 100%;
     height: 100%;
   }
-  .textarea_maxsize{
-    color: #fff;
-    width: 50px;
-    height: 20px;
-    line-height: 20px;
-    text-align: center;
-    background-color: #000;
-    position: fixed;
-    z-index: 100;
-    bottom: 10px;
-    left: 260px;
-  }
+.textarea_maxsize{
+  color: #fff;
+  width: 50px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  background-color: #000;
+  position: fixed;
+  z-index: 100;
+  bottom: 10px;
+  left: 260px;
+}
   .dialog-window {
     width: 100%;
     height: 100%;
@@ -550,5 +659,43 @@ export default {
     }
 
   }
+}
+.table-imageUpload{
+  width: 100%;
+  .imgrow {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.imgrowright {
+  height: 30px;
+  overflow: hidden;
+}
+
+.imgrowrightimg {
+  padding: 5px;
+  width: 30px;
+  height: 30px;
+}
+
+.imgrowleft {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  text-align: right;
+  margin-right: -5px;
+  display: none;
+}
+
+.imgrow:hover .imgrowleft {
+  display: block;
+}
+
+.imgrowFormitem {
+  padding-bottom: 20px;
+}
 }
 </style>
