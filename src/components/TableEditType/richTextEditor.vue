@@ -43,10 +43,12 @@
 
 <script>
 import { Base64 } from 'js-base64';
-import { getToken } from "@/util/auth";
+// import { getToken } from "@/util/auth";
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
-
+const getToken = ()=>{
+  return Math.random().toString(36).substring(2) + new Date().getTime(); //生成一个随机字符串并加入
+}
 export default {
   name: '',
   props: {
@@ -291,7 +293,7 @@ export default {
 }
 </style>
 <style lang='scss' scoped>
-@import "@/styles/xianboss.scss";
+@import "@/styles/common.scss";
 
 /deep/ .custom_dialog_header {
   display: flex;
