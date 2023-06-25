@@ -1,30 +1,36 @@
 <template>
-  <el-dialog
-    :title="title"
-    :close-on-click-modal="false"
-    :visible="mainDialogVisible"
-    width="45%"
-    :before-close="handleClose"
-    append-to-body
-    :fullscreen="dialogFullScreen"
-    :class="[dialogFullScreen ? 'fullscreen' : 'no_fullscreen']"
-  >
+  <el-dialog v-dialogDrag :title='title' :close-on-click-modal="false" :visible="mainDialogVisible" width="45%"
+    :before-close="handleClose" append-to-body :fullscreen="dialogFullScreen"
+    :class="[dialogFullScreen ? 'fullscreen' : 'no_fullscreen']">
     <template slot="title">
       <div class="custom_dialog_header">
         <span class="el_dialog_title">{{ title }}</span>
         <div class="custom_dialog_menu" @click="dialogFullScreen = !dialogFullScreen">
-          <i class="el-icon-full-screen" />
+          <i class="el-icon-full-screen"></i>
         </div>
       </div>
     </template>
     <div :class="[dialogFullScreen ? 'richmain' : 'richmaintwo']">
-      <quill-editor
-        ref="richTextEditor"
-        v-model="content"
-        class="ql-editor"
-        :options="editorOption"
-        :class="[dialogFullScreen ? 'editor' : 'editortwo']"
-      />
+      <div style="height: 100%; ">
+        <Toolbar style="border-bottom: 1px solid #ccc" :editor="editor" :defaultConfig="toolbarConfig" :mode="mode" />
+        <Editor  style="height: 92%; overflow-y: hidden;" v-model="html" :defaultConfig="editorConfig" :mode="mode"
+          @onCreated="onCreated" @onChange="onChange" @onDestroyed="onDestroyed" @onMaxLength="onMaxLength"
+          @onFocus="onFocus" @onBlur="onBlur" @customAlert="customAlert" @customPaste="customPaste" />
+        <!-- <Editor
+            style="height: 500px; overflow-y: hidden;"
+            v-model="html"
+            :defaultConfig="editorConfig"
+            :mode="mode"
+            @onCreated="onCreated"
+            @onChange="onChange"
+            @onDestroyed="onDestroyed"
+            @onMaxLength="onMaxLength"
+            @onFocus="onFocus"
+            @onBlur="onBlur"
+            @customAlert="customAlert"
+            @customPaste="customPaste"
+        /> -->
+      </div>
     </div>
     <div class="footkuang">
       <span slot="footer" class="dialog-footer">
@@ -36,54 +42,13 @@
 </template>
 
 <script>
-import { quillEditor } from 'vue-quill-editor'
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
-import { Base64 } from 'js-base64'
-import * as Quill from 'quill'
-// 设置字体大小
-const fontSizeStyle = Quill.import('attributors/style/size') // 引入这个后会把样式写在style上
-fontSizeStyle.whitelist = [
-  '12px',
-  '14px',
-  '16px',
-  // "18px",
-  '20px',
-  '24px',
-  // "28px",
-  // "32px",
-  '36px'
-]
-Quill.register(fontSizeStyle, true)
-// 设置字体样式
-const Font = Quill.import('attributors/style/font') // 引入这个后会把样式写在style上
-const fonts = ['SimSun', 'SimHei', 'Microsoft-YaHei', 'KaiTi', 'FangSong']
-Font.whitelist = fonts // 将字体加入到白名单
-Quill.register(Font, true)
-// 工具栏
-// const toolbarOptions = [
-//   ["bold", "italic", "underline", "strike"], // 加粗 斜体 下划线 删除线 -----['bold', 'italic', 'underline', 'strike']
-//   [{ color: [] }, { background: [] }], // 字体颜色、字体背景颜色-----[{ color: [] }, { background: [] }]
-//   [{ align: [] }], // 对齐方式-----[{ align: [] }]
-//   [{ size: fontSizeStyle.whitelist }], // 字体大小-----[{ size: ['small', false, 'large', 'huge'] }]
-//   [{ font: fonts }], // 字体种类-----[{ font: [] }]
-//   [{ header: [1, 2, 3, 4, 5, 6, false] }], // 标题
-//   [{ direction: "ltl" }], // 文本方向-----[{'direction': 'rtl'}]
-//   [{ direction: "rtl" }], // 文本方向-----[{'direction': 'rtl'}]
-//   [{ indent: "-1" }, { indent: "+1" }], // 缩进-----[{ indent: '-1' }, { indent: '+1' }]
-//   [{ list: "ordered" }, { list: "bullet" }], // 有序、无序列表-----[{ list: 'ordered' }, { list: 'bullet' }]
-//   [{ script: "sub" }, { script: "super" }], // 上标/下标-----[{ script: 'sub' }, { script: 'super' }]
-//   ["blockquote", "code-block"], // 引用  代码块-----['blockquote', 'code-block']
-//   ["clean"], // 清除文本格式-----['clean']
-//   ["link", "image", "video"], // 链接、图片、视频-----['link', 'image', 'video']
-// ];
+import { Base64 } from 'js-base64';
+import { getToken } from "@/util/auth";
+import '@wangeditor/editor/dist/css/style.css'
+import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
 export default {
   name: '',
-  components: {
-    quillEditor
-  },
   props: {
     mainDialogVisible: {
       type: Boolean,
@@ -99,213 +64,234 @@ export default {
       default: '编辑文本'
     }
   },
-  data() {
+  components: { Editor, Toolbar },
+  data () {
     return {
+      token: "",
       dialogFullScreen: false,
-      content: '',
-      editorOption: {
-        modules: {
-          toolbar: [
-            ['bold', 'italic', 'underline', 'strike'], // 加粗，斜体，下划线，删除线
-            ['blockquote', 'code-block'], // 引用，代码块
-            [{ header: 1 }, { header: 2 }], // 标题，键值对的形式；1、2表示字体大小
-            [{ list: 'ordered' }, { list: 'bullet' }], // 列表
-            [{ script: 'sub' }, { script: 'super' }], // 上下标
-            [{ indent: '-1' }, { indent: '+1' }], // 缩进
-            // [{ direction: "ltl" }], // 文本方向
-            [{ direction: 'rtl' }], // 文本方向
-            [{ size: [...fontSizeStyle.whitelist] }], // 字体大小
-            [{ header: [1, 2, 3, 4, 5, 6, false] }], // 几级标题
-            [{ color: [] }, { background: [] }], // 字体颜色，字体背景颜色
-            [{ font: fonts }], // 字体
-            [{ align: [] }], // 对齐方式
-            ['link'], // ["link", "image", "video"], //上传图片、上传视频
-            ['clean'] // 清除字体样式
-          ]
-          // toolbar:{
-          //   container: toolbarOptions,
-          // }
-        },
-        placeholder: '请输入正文'
-      }
+      content: "",
+      editor: null,
+      html: '',
+      toolbarConfig: {},
+      editorConfig: { placeholder: '请输入内容...', MENU_CONF: {} },
+      mode: 'default', // or 'simple'
     }
+  },
+  created () {
+    this.setToken()
+    
+    this.optionEditorConfig()
   },
   watch: {},
-  created() {
-
-  },
-  mounted() {
-    this.content = this.editValue
+  mounted () {
+    console.log(this.editValue);
   },
   methods: {
-    handleClose() {
+    setToken () {
+      this.token = "bearer " + getToken()
+    },
+    optionEditorConfig () {
+      const _this = this
+      this.editorConfig.MENU_CONF['uploadImage'] = {
+        server: '/api/blade-resource/oss/endpoint/put-file',
+        fieldName: 'file',
+        timeout: 50 * 1000, // 50s
+        // 自定义增加 http  header
+        headers: {
+            'Accept': '*/*',
+            'Blade-Auth': this.token
+        },
+
+        maxFileSize: 10 * 1024 * 1024, // 10M
+        onBeforeUpload (file) {
+          console.log(file);
+          return file // will upload this file
+          // return false // prevent upload
+        },
+        onProgress () {
+          _this.$message.warning("图片正在上传请稍后")
+        },
+        onSuccess (file) {
+          _this.$message.success(`${file.name} 上传成功`)
+        },
+        onFailed (file) {
+          _this.$message.error(`${file.name} 上传成功但插入数据错误`)
+        },
+        onError (file, err, res) {
+          console.log(file, err, res);
+          _this.$message.error(`${file.name} 上传出错`)
+        },
+        // 自定义插入图片
+          customInsert({data}, insertFn) {   
+            // 从 res 中找到 url alt href ，然后插入图片
+            insertFn(data.link, data.originalName, data.link)
+        },
+      },
+        this.editorConfig.MENU_CONF['uploadVideo'] = {
+          fieldName: '/api/blade-resource/oss/endpoint/put-file',
+
+          // 单个文件的最大体积限制，默认为 10M
+          maxFileSize: 5 * 1024 * 1024, // 5M
+
+          // 最多可上传几个文件，默认为 5
+          maxNumberOfFiles: 3,
+
+          allowedFileTypes: ['video/*'],
+
+          // 将 meta 拼接到 url 参数中，默认 false
+          metaWithUrl: false,
+
+          headers: {
+            'Accept': '*/*',
+            'Blade-Auth': this.token
+        },
+          // 超时时间，默认为 30 秒
+          timeout: 150 * 1000, // 150 秒
+
+          // 视频不支持 base64 格式插入
+          // 上传之前触发
+          onBeforeUpload (file) {
+            // file 选中的文件，格式如 { key: file }
+            return file
+
+            // 可以 return
+            // 1. return file 或者 new 一个 file ，接下来将上传
+            // 2. return false ，不上传这个 file
+          },
+
+          // 上传进度的回调函数
+          onProgress (progress) {
+            // progress 是 0-100 的数字
+            console.log('progress', progress)
+          },
+
+          // 单个文件上传成功之后
+          onSuccess (file, res) {
+            console.log(`${file.name} 上传成功`, res)
+          },
+
+          // 单个文件上传失败
+          onFailed (file, res) {
+            console.log(`${file.name} 上传失败`, res)
+          },
+
+          // 上传错误，或者触发 timeout 超时
+          onError (file, err, res) {
+            console.log(`${file.name} 上传出错`, err, res)
+          },
+            // 自定义插入图片
+            customInsert({data}, insertFn) {   
+            // 从 res 中找到 url alt href ，然后插入图片
+            insertFn(data.link, data.originalName, data.link)
+        },
+        }
+    },
+    onCreated (editor) {
+      this.editor = Object.seal(editor)
+      this.editor.setHtml(this.editValue)
+    },
+    // onChange(editor) { console.log('onChange', editor.children) },
+    // onDestroyed(editor) { console.log('onDestroyed', editor) },
+    // onMaxLength(editor) { console.log('onMaxLength', editor) },
+    // onFocus(editor) { console.log('onFocus', editor) },
+    // onBlur(editor) { console.log('onBlur', editor) },
+    // customAlert(info, type) { window.alert(`customAlert in Vue demo\n${type}:\n${info}`) },
+    // customPaste(editor, event, callback) {
+    //     console.log('ClipboardEvent 粘贴事件对象', event)
+    //     // const html = event.clipboardData.getData('text/html') // 获取粘贴的 html
+    //     // const text = event.clipboardData.getData('text/plain') // 获取粘贴的纯文本
+    //     // const rtf = event.clipboardData.getData('text/rtf') // 获取 rtf 数据（如从 word wsp 复制粘贴）
+
+    //     // 自定义插入内容
+    //     editor.insertText('xxx')
+
+    //     // 返回 false ，阻止默认粘贴行为
+    //     event.preventDefault()
+    //     callback(false) // 返回值（注意，vue 事件的返回值，不能用 return）
+
+    //     // 返回 true ，继续默认的粘贴行为
+    //     // callback(true)
+    // },
+    insertText () {
+      const editor = this.editor // 获取 editor 实例
+      if (editor == null) return
+    },
+    handleClose () {
       this.$emit('update:mainDialogVisible', false)
     },
-    handleSubmitrichtext() {
-      this.$emit('update:editValue', Base64.encode(this.content))
+    handleSubmitrichtext () {
+      this.$emit('update:editValue', Base64.encode(this.editor.getHtml()))
+      console.log(this.editor.getHtml());
       this.$parent.tableCellBlur()
     }
+  },
+  beforeDestroy () {
+    const editor = this.editor
+    if (editor == null) return
+    editor.destroy() // 组件销毁时，及时销毁编辑器
   }
 }
 </script>
 <style>
-.ql-snow .ql-tooltip[data-mode="link"]::before {
-  content: "请输入链接地址:";
+.editor-content-view {
+  border: 3px solid #ccc;
+  border-radius: 5px;
+  padding: 0 10px;
+  margin-top: 20px;
+  overflow-x: auto;
 }
 
-.ql-snow .ql-tooltip.ql-editing a.ql-action::after {
-  border-right: 0px;
-  content: "保存";
-  padding-right: 0px;
+.editor-content-view p,
+.editor-content-view li {
+  white-space: pre-wrap;
+  /* 保留空格 */
 }
 
-.ql-snow .ql-tooltip[data-mode="video"]::before {
-  content: "请输入视频地址:";
+.editor-content-view blockquote {
+  border-left: 8px solid #d0e5f2;
+  padding: 10px 10px;
+  margin: 10px 0;
+  background-color: #f1f1f1;
 }
 
-.ql-snow .ql-picker.ql-size .ql-picker-label::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item::before {
-  content: "14px";
+.editor-content-view code {
+  font-family: monospace;
+  background-color: #eee;
+  padding: 3px;
+  border-radius: 3px;
 }
 
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="small"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="small"]::before {
-  content: "10px";
+.editor-content-view pre>code {
+  display: block;
+  padding: 10px;
 }
 
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="large"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="large"]::before {
-  content: "18px";
+.editor-content-view table {
+  border-collapse: collapse;
 }
 
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="huge"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="huge"]::before {
-  content: "32px";
+.editor-content-view td,
+.editor-content-view th {
+  border: 1px solid #ccc;
+  min-width: 50px;
+  height: 20px;
 }
 
-.ql-snow .ql-picker.ql-header .ql-picker-label::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item::before {
-  content: "文本";
+.editor-content-view th {
+  background-color: #f1f1f1;
 }
 
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before {
-  content: "标题1";
+.editor-content-view ul,
+.editor-content-view ol {
+  padding-left: 20px;
 }
 
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before {
-  content: "标题2";
-}
-
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before {
-  content: "标题3";
-}
-
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="4"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="4"]::before {
-  content: "标题4";
-}
-
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="5"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="5"]::before {
-  content: "标题5";
-}
-
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="6"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="6"]::before {
-  content: "标题6";
-}
-
-.ql-snow .ql-picker.ql-font .ql-picker-label::before,
-.ql-snow .ql-picker.ql-font .ql-picker-item::before {
-  content: "默认";
-}
-
-.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="SimSun"]::before,
-.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="SimSun"]::before {
-  content: "宋体";
-}
-
-.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="Microsoft-YaHei"]::before,
-.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="Microsoft-YaHei"]::before {
-  content: "微软雅黑";
-}
-
-.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="KaiTi"]::before,
-.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="KaiTi"]::before {
-  content: "楷体";
-}
-
-.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="FangSong"]::before,
-.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="FangSong"]::before {
-  content: "仿宋";
-}
-
-.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="SimHei"]::before,
-.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="SimHei"]::before {
-  content: "黑体";
-}
-
-.ql-toolbar.ql-snow+.ql-container.ql-snow {
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-}
-
-.ql-toolbar.ql-snow {
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-}
-
-.ql-snow .ql-stroke,
-.ql-snow .ql-picker {
-  color: #999;
-  stroke: #999;
-}
-
-.ql-snow .ql-fill,
-.ql-snow .ql-stroke.ql-fill {
-  fill: #999;
-}
-
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="12px"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="12px"]::before {
-  content: "12px";
-}
-
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="14px"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="14px"]::before {
-  content: "14px";
-}
-
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="16px"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="16px"]::before {
-  content: "16px";
-}
-
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="20px"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="20px"]::before {
-  content: "20px";
-}
-
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="24px"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="24px"]::before {
-  content: "24px";
-}
-
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="36px"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="36px"]::before {
-  content: "36px";
-}
-
-.ql-container {
-  font-size: 14px;
+.editor-content-view input[type="checkbox"] {
+  margin-right: 5px;
 }
 </style>
-
 <style lang='scss' scoped>
-@import "@/styles/common.scss";
+@import "@/styles/xianboss.scss";
 
 /deep/ .custom_dialog_header {
   display: flex;
@@ -335,7 +321,7 @@ export default {
 }
 
 .richmain {
-  height: calc(100vh - 200px);
+  height: calc(100vh - 50px);
 }
 
 .richmaintwo {
@@ -363,48 +349,7 @@ export default {
   overflow: hidden;
 }
 
-/*  */
-/deep/ .ql-toolbar.ql-snow .ql-formats:nth-child(2) {
-  display: none;
-}
-
-/deep/ .ql-toolbar.ql-snow .ql-formats:nth-child(3) {
-  display: none;
-}
-
-/deep/ .ql-toolbar.ql-snow .ql-formats:nth-child(4) {
-  display: none;
-}
-
-/deep/ .ql-toolbar.ql-snow .ql-formats:nth-child(5) {
-  display: none;
-}
-
-/deep/ .ql-toolbar.ql-snow .ql-formats:nth-child(6) {
-  display: none;
-}
-
-/deep/ .ql-toolbar.ql-snow .ql-formats:nth-child(7) {
-  display: none;
-}
-
-/deep/ .ql-toolbar.ql-snow .ql-formats:nth-child(13) {
-  display: none;
-}
-
 /deep/.el-dialog__body {
   padding: 0;
-}
-
-.quill-editor {
-  overflow: inherit;
-  padding: 0;
-  white-space: inherit;
-
-}
-
-/deep/ .ql-container {
-  white-space: pre-wrap;
-  padding-bottom: 50px;
 }
 </style>
